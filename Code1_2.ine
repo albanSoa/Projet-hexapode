@@ -1,4 +1,4 @@
-// Code en état de marche pour 1 moteur
+// Code en état de marche 
 #include <Servo.h>
 // nombre de servos à commander
 #define SERVO_COUNT 3
@@ -51,3 +51,5 @@ void loop() {
     }
    }
   } 
+
+// Exemple mettre p0m140g pour bouger le moteur relié au Pin 4
