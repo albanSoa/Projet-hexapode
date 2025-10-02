@@ -1,0 +1,30 @@
+//Code Processing du 2.2 adapté
+
+import controlP5.*; //Pour utiliser les éléments de la bibliothèque controlP5 
+import processing.serial.*; //Bibliothèque pour utiliser le port série 
+Serial arduinoPort; // Nom du port série 
+ControlP5 cp5; 
+int angle1=90;
+void setup() { 
+ size(800, 500); //fenêtre graphique 
+ println(Serial.list()); //affichage des ports séries utilisés 
+ String portName="COM6"; //l'Arduino est connecté sur le port COM6 en l'occurence, faudra adapter si y'a plusieurs ports
+ arduinoPort=new Serial(this,portName,115200); //configuration du port série, 
+ // vitesse du port série identique à celle configurée pour l'arduino 
+ cp5 = new ControlP5(this); 
+ cp5.addSlider("servo1").setPosition(100, 400).setSize(200, 20).setRange(0, 
+180).setValue(90); 
+ } 
+ /* création du slider "servo1": 
+ - setPosition(100, 400) : placé à la position 100,400 
+ - setSize(200, 20) : dimension du slider 200,20 
+ - setRange(0, 180) : valeur numérique de la variable du slider comprise entre 0 et 180 
+ - setValue(90) : valeur initiale 
+ */ 
+ 
+void draw() { 
+ background(0); 
+ angle1 = (int) cp5.getController("servo1").getValue(); //valeur du slider stockée dans angle1 
+ println(angle1); 
+ arduinoPort.write("p1m"+angle1+"g"); 
+} 
