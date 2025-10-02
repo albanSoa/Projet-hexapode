@@ -1,0 +1,67 @@
+//en cours d'écriture
+
+import processing.serial.*;
+Serial arduinoPort;
+
+float angle1 = 90;
+
+void setup() {
+  size(800, 500);
+  println(Serial.list());
+  String portName="COM6"; //l'Arduino est connecté sur le port COM6 en l'occurence, faudra adapter si y'a plusieurs ports
+  arduinoPort=new Serial(this,portName,115200); //configuration du port série,
+}
+
+void draw() {
+  background(0);
+
+  // Lecture des données envoyées par Arduino
+  while (arduinoPort.available() > 0) {
+    String data = arduinoPort.readStringUntil('\n');
+    if (data != null) {
+      data = trim(data);
+      try {
+        angle1 = float(data); // Convertit la chaîne en nombre
+      } catch (Exception e) {
+        println("Erreur de conversion : " + data);
+      }
+    }
+  }
+
+  // 🎨 Visualisation graphique : rectangle incliné
+  pushMatrix();
+  translate(400, 300); // centre de rotation
+  rotate(PI + radians(angle1)); // inclinaison selon l’angle
+  fill(#EFF70C);
+  rect(0, -10, 200, 10); // rectangle horizontal
+  popMatrix();
+
+  // Affichage de l’angle
+  fill(255);
+  textSize(20);
+  text("Angle : " + int(angle1) + "°", 50, 50);
+
+
+//Arduino
+
+#include <Servo.h>
+
+Servo myServo;
+int angle;
+int i;
+float cons;
+
+void setup() {
+  myServo.attach(4);           // Servo connecté sur la broche 9
+  Serial.begin(9600);          // Communication série avec Processing
+}
+
+void loop() {
+  for (i = 0; i <= 90; i++) {
+    cons = 512 * (1 + sin(6.28 * i / 90)); // Valeur sinusoïdale entre 0 et 1024
+    angle = map(cons, 0, 1023, 0, 180);    // Conversion en angle entre 0° et 180°
+    myServo.write(angle);                 // Commande du servo
+    Serial.println(angle);                // Envoi de l’angle à Processing
+    delay(50);                            // Pause pour lisser le mouvement
+  }
+}
