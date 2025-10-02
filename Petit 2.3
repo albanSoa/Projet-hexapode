@@ -1,0 +1,86 @@
+//Programme Arduino fonctionnel, mais seulement pour un servomoteur 2.3
+
+#include <Servo.h>
+
+// On ne pilote qu’un seul servomoteur
+const int servoPin = 2;       // Broche utilisée, faut juste modifier l'entrée pour choisir quelle patte bouge
+Servo monServo;
+
+void setup() {
+  Serial.begin(115200);       // Vitesse de communication série
+  monServo.attach(servoPin);  // Attache le servo à la broche 4
+  monServo.write(90);         // Position initiale à 90°
+  Serial.println("Ready");
+}
+
+// Variables pour décoder la commande
+#define STATE_NONE 0
+#define STATE_PINNUMBER 1
+#define STATE_POSITION 2
+
+static int pinNumber = 0;
+static int position = 0;
+static int readState = STATE_NONE;
+
+void loop() {
+  if (Serial.available()) {
+    char ch = Serial.read();
+
+    switch (ch) {
+      case '0'...'9':
+        switch (readState) {
+          case STATE_PINNUMBER:
+            pinNumber = pinNumber * 10 + (ch - '0');
+            break;
+          case STATE_POSITION:
+            position = position * 10 + (ch - '0');
+            break;
+        }
+        break;
+
+      case 'p':
+        readState = STATE_PINNUMBER;
+        break;
+
+      case 'm':
+        readState = STATE_POSITION;
+        break;
+
+      case 'g':
+        // Si le servo demandé est le n°1, on l’exécute
+        if (pinNumber == 1) {
+          monServo.write(position);
+        }
+        // Réinitialisation
+        pinNumber = 0;
+        position = 0;
+        readState = STATE_NONE;
+        break;
+    }
+  }
+}
+
+
+
+//Programme processing correspondant pour une patte
+
+import processing.serial.*;
+Serial arduinoPort;
+void setup() {
+  size(320, 240);
+  background(0, 255, 255);
+  printArray(Serial.list());
+  String portName = Serial.list()[0];
+  arduinoPort = new Serial(this, portName, 115200);
+}
+
+void draw() {
+  int servoVal = (int)(255 * mouseX / width);  // Position horizontale → valeur entre 0 et 255
+  int angle1=servoVal*180 /255; 
+  String command1="p1m"+angle1+"g";
+  arduinoPort.write(command1);
+  println(servoVal);
+  background(255, 255, 0);
+  fill(255, 0, 0);
+  ellipse(mouseX, mouseY, 50, 50);             // Cercle rouge qui suit la souris
+}
