@@ -15,18 +15,6 @@ L’objectif est de créer une interface graphique (IHM) permettant de piloter l
 
 ---
 
-## 📂 Structure du projet
-- **Arduino**
-  - `tuto_ar_servo1.ino` → Commande d’un servo via la souris (0–180°)
-  - `tuto_ar_servo_serie1.ino` → Commande de plusieurs servos via une trame série (format `pXmYg`)
-- **Processing**
-  - `tuto_pr_servo_souris1.pde` → Contrôle d’un servo avec la souris
-  - `slider1.pde` → Interface graphique simple avec un slider (ControlP5)
-  - `slider1_event.pde` → Gestion des événements de contrôle (ControlEvent)
-  - `slider_serie1.pde` → Commande série d’un servo avec slider + affichage graphique
-
----
-
 ## ⚙️ Principe de fonctionnement
 1. L’Arduino reçoit les commandes via le port série USB.
 2. Le programme **Processing** agit comme une interface utilisateur :
