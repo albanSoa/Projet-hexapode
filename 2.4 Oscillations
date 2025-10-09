@@ -1,0 +1,89 @@
+2.4 Oscillations
+
+import processing.serial.*; // Bibliothèque pour utiliser le port série
+
+Serial arduinoPort; // Nom du port série
+int angle1 = 90;     // Angle actuel
+int direction = 1;   // Sens de l’oscillation
+
+void setup() {
+  size(800, 500);
+  println(Serial.list());
+  String portName = "COM6"; // À adapter selon ton port
+  arduinoPort = new Serial(this, portName, 115200);
+}
+
+// ici on pousse un peu mais on a fait des recherches pour ajouter des graduations sur le demi-cercle qu'on affichera plus tard, d'ou cette fonction :
+
+void drawGraduations(float cx, float cy, float radius, int step) {
+  stroke(255); // couleur des graduations
+  strokeWeight(1);
+  fill(255);
+  textSize(12);
+  
+  for (int angle = 0; angle <= 180; angle += step) {
+    float rad = radians(angle);
+    
+    // Position du trait
+    float x1 = cx + cos(PI + rad) * radius;
+    float y1 = cy + sin(PI + rad) * radius;
+    
+    float x2 = cx + cos(PI + rad) * (radius + 10); // petit prolongement
+    float y2 = cy + sin(PI + rad) * (radius + 10);
+    
+    line(x1, y1, x2, y2); // graduation
+    
+    // Position du texte
+    float xt = cx + cos(PI + rad) * (radius + 25);
+    float yt = cy + sin(PI + rad) * (radius + 25);
+    
+    text(angle + "°", xt - 10, yt); // affichage de l'angle
+  }
+}
+
+void draw() {
+  background(0);
+  noStroke(); 
+  // Oscillation automatique entre 0 et 180°
+  angle1 += direction;
+  if (angle1 >= 150 || angle1 <= 0) {
+    direction *=-1;// Inversion du sens
+  }
+
+  // Envoi de la commande au servomoteur
+  arduinoPort.write("p1m" + angle1 + "g");
+  
+  drawGraduations(400, 305, 100, 30); // centre, rayon, pas de graduation
+
+  //demi-cercle
+  fill(100, 150, 255);
+  arc(400, 305, 190,198, PI, TWO_PI);
+
+  //Ici on a réarrangé le design du rectangle jaune en le transformant en aiguille rouge
+  pushMatrix();
+  translate(400, 300); // centre du cercle
+  rotate(radians(-angle1)); // sens horaire
+  fill(#FF0000);
+
+  // Triangle orienté vers l’extérieur
+  beginShape();
+  vertex(0, -5);     // base gauche
+  vertex(0, 5);      // base droite
+  vertex(80, 0);     // pointe vers l’extérieur
+  endShape(CLOSE);
+
+  popMatrix();
+
+
+  
+  // Cercle
+  fill(0);
+  ellipse(400, 305, 18, 18);
+  
+  // Affichage de l’angle
+  fill(255);
+  textSize(20);
+  text("Angle : " + int(180-angle1) + "°", 50, 50);
+
+  delay(20); // Pour ralentir l’oscillation
+}
