@@ -1,3 +1,4 @@
+// Code en état de marche
 #include <Servo.h>
 
 // nombre de servos à commander
@@ -22,6 +23,7 @@ void setup() {
   }
 }
 
+// Boucle pour faire osciller la pate
 void loop() {
   servos[0].write(0);
   delay(100);
