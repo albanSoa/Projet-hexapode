@@ -1,0 +1,34 @@
+#include <Servo.h>
+
+// nombre de servos à commander
+#define SERVO_COUNT 3
+
+// tableau des servos et pins correspondantes
+const byte servoPins[SERVO_COUNT] = {2, 4, 6};
+Servo servos[SERVO_COUNT];
+
+void setup() {
+  for (int i = 0; i < SERVO_COUNT / 3; i++) {
+    servos[i].attach(servoPins[i]);
+    servos[i].write(35); // position initiale arbitraire
+  }
+  for (int i = 1; i < 2 ; i++) {
+    servos[i].attach(servoPins[i]);
+    servos[i].write(75); // valeur corrigée (les servos n'acceptent pas les valeurs négatives)
+  }
+  for (int i = 2; i < SERVO_COUNT; i++) {
+    servos[i].attach(servoPins[i]);
+    servos[i].write(45); // position initiale arbitraire
+  }
+}
+
+void loop() {
+  servos[0].write(0);
+  delay(100);
+  servos[1].write(0);
+  delay(100);
+  servos[0].write(35);
+  delay(100);
+  servos[1].write(75);
+  delay(100);
+}
