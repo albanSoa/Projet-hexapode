@@ -1,0 +1,82 @@
+#include <Servo.h>
+
+Servo servos[12];
+
+void setup() {
+  Serial.begin(9600);
+
+  // Attacher les 12 servos aux broches 2 à 19
+  for (int i = 0; i < 18; i++) {
+    servos[i].attach(i + 3);
+  }
+}
+
+void loop() {
+  if (Serial.available()) {
+    String line = Serial.readStringUntil('\n');
+
+    int i1 = line.indexOf(';');
+    int i2 = line.indexOf(';', i1+1);  
+    float angle = line.substring(0, i1).toFloat();
+    float distance = line.substring(i1+1, i2).toFloat();
+    String command = line.substring(i2+1);
+    
+    if (command == "Avancer") {
+      servos[1].write(angle); // coude
+      servos[2].write(angle);  // poignet
+    }
+    if (command == "coucou") {
+      for (int i = 0; i < 3; i++) {
+        // Patte 1 uniquement (servos 0, 1, 2)
+        servos[1].write(80); // coude
+
+        servos[2].write(60);  // poignet
+        delay(300);
+        servos[1].write(70);
+ 
+        servos[2].write(80);
+        delay(300);
+      }
+
+      // Retour à la position neutre
+      servos[0].write(90);
+      servos[1].write(30);
+      servos[2].write(90);
+    }
+    if (command == "Position initiale") {
+        // Patte 1 uniquement (servos 0, 1, 2)
+        servos[1].write(35);  // poignet
+        servos[2].write(70); // épaule
+
+    }
+   if (command == "Oscille") {
+    for (int i = 0; i < 3; i++) {
+        servos[1].write(0); // coude
+        servos[2].write(75);  // poignet
+        delay(200);
+        servos[1].write(0); // coude
+        servos[2].write(5);  // poignet
+        delay(200);
+        servos[1].write(35); // coude
+        servos[2].write(70);  // poignet
+        delay(200);
+
+    }
+   }
+  if (command == "Tremble") {
+    for (int i = 0; i < 15; i = i + 1) {
+        servos[1].write(35);  // poignet
+        servos[2].write(70); // épaule
+        delay(30);
+        servos[1].write(33);  // poignet
+        servos[2].write(72); // épaule
+        delay(30);
+        servos[1].write(35);  // poignet
+        servos[2].write(70); // épaule
+        delay(30);
+        servos[1].write(37);  // poignet
+        servos[2].write(68); // épaule
+   }
+ } 
+}
+}
