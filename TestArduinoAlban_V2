@@ -11,6 +11,8 @@ void setup() {
   }
 }
 
+float ancien_angle = 90;
+
 void loop() {
   if (Serial.available()) {
     String line = Serial.readStringUntil('\n');
@@ -20,10 +22,18 @@ void loop() {
     float angle = line.substring(0, i1).toFloat();
     float distance = line.substring(i1+1, i2).toFloat();
     String command = line.substring(i2+1);
-    
     if (command == "Avancer") {
-      servos[1].write(angle); // coude
-      servos[2].write(angle);  // poignet
+      // Si on veut tourner
+      if (abs(ancien_angle - angle > 5)) {
+      // tourner(angle, distance);
+      }
+      // Si on veut juste avancer
+      else {
+      // avancer(distance);
+      }
+    ancien_angle = angle;
+    // delai entre les commande -> à ajuster en fonction du temps mis à avancer
+    // delay(100);
     }
     if (command == "coucou") {
       for (int i = 0; i < 3; i++) {
@@ -38,15 +48,11 @@ void loop() {
         delay(300);
       }
 
-      // Retour à la position neutre
-      servos[0].write(90);
-      servos[1].write(30);
-      servos[2].write(90);
     }
     if (command == "Position initiale") {
         // Patte 1 uniquement (servos 0, 1, 2)
-        servos[1].write(35);  // poignet
-        servos[2].write(70); // épaule
+        servos[1].write(30);  // poignet
+        servos[2].write(90); // épaule
 
     }
    if (command == "Oscille") {
@@ -80,3 +86,4 @@ void loop() {
  } 
 }
 }
+
