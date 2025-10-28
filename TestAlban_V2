@@ -171,6 +171,8 @@ void mousePressed() {
   }
   if (mouseX > 780 && mouseX < 880 && mouseY > 480 && mouseY < 510) {
     port.write("coucou\n");
+    delay(650);
+    port.write("Position initiale\n");
   }
   if (mouseX > 780 && mouseX < 880 && mouseY > 380 && mouseY < 410) {
     port.write("Position initiale\n");
