@@ -1,0 +1,112 @@
+#include <Servo.h>
+
+Servo servos[12];
+
+void setup() {
+  Serial.begin(9600);
+
+  // Attacher les 12 servos aux broches 2 à 19
+  for (int i = 0; i < 18; i++) {
+    servos[i].attach(i + 3);
+  }
+}
+
+float ancien_angle = 90;
+
+void loop() {
+  if (Serial.available()) {
+    String line = Serial.readStringUntil('\n');
+
+    int i1 = line.indexOf(';');
+    int i2 = line.indexOf(';', i1+1);  
+    float angle = line.substring(0, i1).toFloat();
+    float distance = line.substring(i1+1, i2).toFloat();
+    String command = line.substring(i2+1);
+    if (command == "Avancer") {
+      // Si on veut tourner
+      if (abs(ancien_angle - angle > 5)) {
+      // tourner(angle, distance);
+      }
+      // Si on veut juste avancer
+      else {
+      // avancer(distance);
+      }
+    ancien_angle = angle;
+    // delai entre les commande -> à ajuster en fonction du temps mis à avancer
+    // delay(100);
+    }
+    if (command == "coucou") {
+      for (int i = 0; i < 3; i++) {
+        // Patte 1 uniquement (servos 0, 1, 2)
+        servos[1].write(80); // coude
+
+        servos[2].write(60);  // poignet
+        delay(300);
+        servos[1].write(70);
+ 
+        servos[2].write(80);
+        delay(300);
+      }
+
+    }
+    if (command == "Position initiale") {
+        // Patte 1 uniquement (servos 0, 1, 2)
+        servos[1].write(30);  // poignet
+        servos[2].write(90); // épaule
+        servos[3].write(0); 
+
+    }
+   if (command == "Oscille") {
+    for (int i = 0; i < 3; i++) {
+        servos[1].write(0); // coude
+        servos[2].write(75);  // poignet
+        delay(200);
+        servos[1].write(0); // coude
+        servos[2].write(5);  // poignet
+        delay(200);
+        servos[1].write(35); // coude
+        servos[2].write(70);  // poignet
+        delay(200);
+
+    }
+   }
+  if (command == "Tremble") {
+    for (int i = 0; i < 15; i = i + 1) {
+        servos[1].write(35);  // poignet
+        servos[2].write(70); // épaule
+        delay(30);
+        servos[1].write(33);  // poignet
+        servos[2].write(72); // épaule
+        delay(30);
+        servos[1].write(35);  // poignet
+        servos[2].write(70); // épaule
+        delay(30);
+        servos[1].write(37);  // poignet
+        servos[2].write(68); // épaule
+   }
+  }
+ if (command == "Patte1") {
+      float x = 20;
+      float l1 = 55.0;
+      float l2 = 80.0;
+      float l3 = 76.0;
+      float gamma = atan(x/l3);
+      float l4 = l3/cos(gamma);
+      
+      // 4 = (-hauteur du chassis)^2
+      float beta = acos( (4 + l4*l4 - l1*l1 - l2*l2) / (2*l1*l2) );
+      float alpha = ((l1 - l2*cos(beta)*2 - l2*sin(beta)*l4) / (l1 + l2*cos(beta)*l4 + l2*sin(beta)*2));
+      Serial.println(gamma);
+      Serial.println(beta);
+      Serial.println(alpha);
+      servos[2].write(0); // épaule
+      delay(1000);
+      servos[3].write(gamma*180/3.1413);
+      delay(1000);
+      servos[1].write(alpha*180/3.1413);
+      servos[2].write(abs(beta*180/3.1413));
+      delay(1000);
+
+   }
+ } 
+}
