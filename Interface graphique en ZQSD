@@ -1,0 +1,214 @@
+import processing.serial.*;
+Serial port;
+import controlP5.*;
+Serial arduinoPort;
+ControlP5 cp5;
+
+int nbGraduations = 12;
+float rayonMax = 225;
+int nbCouches = 100;
+float cx = 450;
+float cy = 275;
+float px = cx;
+float py = cy;
+boolean isDragging = false;zz
+float sliderY;
+float sliderX = 50;
+float sliderTop = 100;
+float sliderBottom = 400;
+boolean draggingSlider = false;
+
+void setup() {
+  size(900, 550);
+  frameRate(60);
+  ellipseMode(CENTER);
+  textFont(createFont("Arial", 12));
+  textAlign(CENTER, CENTER);
+  port = new Serial(this, Serial.list()[0], 9600); // Vérifie le bon port
+  textSize(20);
+  sliderY = sliderBottom;
+}
+
+void draw() {
+  background(255);
+  drawButton();
+  drawButton2();
+  drawButton3();
+  drawButton4();
+  drawDirectionalArrows();
+  drawVerticalSlider();
+
+}
+
+void drawButton() {
+  int bx = 750;
+  int by = 480;
+  int bw = 120;
+  int bh = 40;
+  boolean hover = mouseX > bx && mouseX < bx + bw && mouseY > by && mouseY < by + bh;
+
+  fill(180, 180, 180, 80);
+  noStroke();
+  rect(bx + 3, by + 3, bw, bh, 10);
+
+  fill(hover ? color(70, 130, 255) : color(200));
+  stroke(60);
+  strokeWeight(1);
+  rect(bx, by, bw, bh, 10);
+
+  fill(hover ? 255 : 0);
+  textAlign(CENTER, CENTER);
+  textSize(16);
+  text("Coucou", bx + bw / 2, by + bh / 2);
+}
+
+void drawButton2() {
+  int bx = 750;
+  int by = 420;
+  int bw = 120;
+  int bh = 40;
+  boolean hover = mouseX > bx && mouseX < bx + bw && mouseY > by && mouseY < by + bh;
+
+  fill(180, 180, 180, 80);
+  noStroke();
+  rect(bx + 3, by + 3, bw, bh, 10);
+
+  fill(hover ? color(70, 130, 255) : color(200));
+  stroke(60);
+  strokeWeight(1);
+  rect(bx, by, bw, bh, 10);
+
+  fill(hover ? 255 : 0);
+  textAlign(CENTER, CENTER);
+  textSize(14);
+  text("Position initiale", bx + bw / 2, by + bh / 2);
+}
+
+void drawButton3() {
+  int bx = 750;
+  int by = 360;
+  int bw = 120;
+  int bh = 40;
+  boolean hover = mouseX > bx && mouseX < bx + bw && mouseY > by && mouseY < by + bh;
+
+  fill(180, 180, 180, 80);
+  noStroke();
+  rect(bx + 3, by + 3, bw, bh, 10);
+
+  fill(hover ? color(70, 130, 255) : color(200));
+  stroke(60);
+  strokeWeight(1);
+  rect(bx, by, bw, bh, 10);
+
+  fill(hover ? 255 : 0);
+  textAlign(CENTER, CENTER);
+  textSize(14);
+  text("Repousser Obj", bx + bw / 2, by + bh / 2);
+}
+
+void drawButton4() {
+  int bx = 750;
+  int by = 300;
+  int bw = 120;
+  int bh = 40;
+  boolean hover = mouseX > bx && mouseX < bx + bw && mouseY > by && mouseY < by + bh;
+
+  fill(180, 180, 180, 80);
+  noStroke();
+  rect(bx + 3, by + 3, bw, bh, 10);
+
+  fill(hover ? color(70, 130, 255) : color(200));
+  stroke(60);
+  strokeWeight(1);
+  rect(bx, by, bw, bh, 10);
+
+  fill(hover ? 255 : 0);
+  textAlign(CENTER, CENTER);
+  textSize(16);
+  text("Tremble", bx + bw / 2, by + bh / 2);
+}
+
+void drawDirectionalArrows() {
+  drawArrow(width/2, 225, "Avancer", 0);
+  drawArrow(width/2 - 60, height/2, "Gauche", -HALF_PI);
+  drawArrow(width/2, 300, "Reculer", PI);
+  drawArrow(width/2 + 60, height/2, "Droite", HALF_PI);
+}
+
+void drawArrow(float x, float y, String label, float rotation) {
+  pushMatrix();
+  translate(x, y);
+  rotate(rotation);
+  fill(0);
+  stroke(0);
+  triangle(-10, 10, 10, 10, 0, -20);
+  popMatrix();
+  fill(0);
+  text(label, x, y + 30);
+}
+
+void drawVerticalSlider() {
+  stroke(150);
+  strokeWeight(20);
+  line(sliderX, sliderTop, sliderX, sliderBottom);
+
+  fill(100);
+  noStroke();
+  ellipse(sliderX, sliderY, 20, 20);
+
+  float value = map(sliderY, sliderBottom, sliderTop, 0, 100);
+  fill(0);
+  textAlign(LEFT, CENTER);
+  textSize(14);
+  text("Valeur : " + int(value), sliderX + 30, sliderY);
+}
+
+void mouseDragged() {
+  if (draggingSlider) {
+    sliderY = constrain(mouseY, sliderTop, sliderBottom);
+  }
+}
+
+void mousePressed() {
+  float d = dist(mouseX, mouseY, px, py);
+  if (d < 15) {
+    isDragging = true;
+  }
+
+ if (mouseX > 720 && mouseX < 840 && mouseY > 480 && mouseY < 520) {
+  port.write("coucou\n");
+  delay(650);
+  port.write("Position initiale\n");
+}
+if (mouseX > 720 && mouseX < 840 && mouseY > 420 && mouseY < 460) {
+  port.write("Position initiale\n");
+}
+if (mouseX > 720 && mouseX < 840 && mouseY > 360 && mouseY < 400) {
+  port.write("Oscille\n");
+  delay(2500);
+  port.write("Oscille\n");
+  delay(2500);
+  port.write("Position initiale\n");
+}
+if (mouseX > 720 && mouseX < 840 && mouseY > 300 && mouseY < 340) {
+  for (int i = 0; i < 6; i++) {
+    port.write("Tremble\n");
+    delay(90);
+  }
+}
+
+
+  if (dist(mouseX, mouseY, sliderX, sliderY) < 10) {
+    draggingSlider = true;
+  }
+}
+
+void mouseReleased() {
+  isDragging = false;
+  px = cx;
+  py = cy;
+  if (mouseX < 700 && mouseY < 600) {
+    port.write("Position initiale\n");
+  }
+  draggingSlider = false;
+}
