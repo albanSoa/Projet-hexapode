@@ -1,0 +1,181 @@
+//Codes avec initialisation "fonctionelle"
+
+
+#include <Servo.h>
+
+// Création de la liste
+Servo servos[18];
+
+void setup() {
+  Serial.begin(9600);
+
+  // Attacher les 18 servos aux broches 14, 16, 18, ...
+  for (int i = 0; i < 18; i++) {
+    servos[i].attach(14 + (i * 2));
+  }
+  int deg = 180;
+  // On met du délai pour pouvoir le faire fonctionner sans batterie
+  // servos[0].write(deg - 76);  // Pb sur le servos moteur 1
+  servos[1].write(0); // épaule
+  delay(50);
+  servos[2].write(deg - 15);
+  delay(50);
+
+  servos[3].write(100);
+  delay(50);
+  servos[4].write(deg - 15);
+  delay(50);
+  servos[5].write(0);
+  delay(50);
+
+  servos[6].write(90);
+  delay(50);
+  servos[7].write(deg - 12);
+  delay(50);
+  servos[8].write(0);
+  delay(50);
+
+  servos[9].write(90);
+  delay(50);
+  servos[10].write(deg - 25);
+  delay(50);
+  servos[11].write(0);
+  delay(50);
+
+  servos[12].write(deg - 90);
+  delay(50);
+  servos[13].write(12);
+  delay(50);
+  servos[14].write(deg - 15);
+  delay(50);
+
+  servos[15].write(deg - 82);
+  delay(50);
+  servos[16].write(0);
+  delay(50);
+  servos[17].write(deg - 15);
+  delay(50);
+}
+
+
+void loop() {
+  if (Serial.available()) {
+    String line = Serial.readStringUntil('\n');
+
+    int i1 = line.indexOf(';');
+    int i2 = line.indexOf(';', i1+1);  
+    String command = line.substring(i2+1);
+    if (command == "coucou") {
+      for (int i = 0; i < 3; i++) {
+        // Patte 1 uniquement (servos 0, 1, 2)
+        servos[1].write(80); // coude
+
+        servos[2].write(60);  // poignet
+        delay(300);
+        servos[1].write(70);
+ 
+        servos[2].write(80);
+        delay(300);
+      }
+
+    }
+    if (command == "Position initiale") {
+      // Mise en position 0
+        int deg = 180;
+        // On met du délai pour pouvoir le faire fonctionner sans batterie
+        // servos[0].write(deg - 76);  // Pb sur le servos moteur 1
+        servos[1].write(0); // épaule
+        delay(50);
+        servos[2].write(deg - 15);
+        delay(50);
+
+        servos[3].write(100);
+        delay(50);
+        servos[4].write(deg - 15);
+        delay(50);
+        servos[5].write(0);
+        delay(50);
+
+        servos[6].write(90);
+        delay(50);
+        servos[7].write(deg - 12);
+        delay(50);
+        servos[8].write(0);
+        delay(50);
+
+        servos[9].write(90);
+        delay(50);
+        servos[10].write(deg - 25);
+        delay(50);
+        servos[11].write(0);
+        delay(50);
+
+        servos[12].write(deg - 90);
+        delay(50);
+        servos[13].write(12);
+        delay(50);
+        servos[14].write(deg - 15);
+        delay(50);
+
+        servos[15].write(deg - 82);
+        delay(50);
+        servos[16].write(0);
+        delay(50);
+        servos[17].write(deg - 15);
+        delay(50);
+
+    }
+   if (command == "Oscille") {
+    for (int i = 0; i < 3; i++) {
+        servos[1].write(0); // coude
+        servos[2].write(75);  // poignet
+        delay(200);
+        servos[1].write(0); // coude
+        servos[2].write(5);  // poignet
+        delay(200);
+        servos[1].write(35); // coude
+        servos[2].write(70);  // poignet
+        delay(200);
+
+    }
+   }
+  if (command == "Tremble") {
+    for (int i = 0; i < 15; i = i + 1) {
+        servos[1].write(35);  // poignet
+        servos[2].write(70); // épaule
+        delay(30);
+        servos[1].write(33);  // poignet
+        servos[2].write(72); // épaule
+        delay(30);
+        servos[1].write(35);  // poignet
+        servos[2].write(70); // épaule
+        delay(30);
+        servos[1].write(37);  // poignet
+        servos[2].write(68); // épaule
+   }
+  }
+ if (command == "Patte1") {
+      float x = 20;
+      float l1 = 55.0;
+      float l2 = 80.0;
+      float l3 = 76.0;
+      float gamma = atan(x/l3);
+      float l4 = l3/cos(gamma);
+     
+      // 4 = (-hauteur du chassis)^2
+      float beta = acos( (4 + l4*l4 - l1*l1 - l2*l2) / (2*l1*l2) );
+      float alpha = ((l1 - l2*cos(beta)*2 - l2*sin(beta)*l4) / (l1 + l2*cos(beta)*l4 + l2*sin(beta)*2));
+      Serial.println(gamma);
+      Serial.println(beta);
+      Serial.println(alpha);
+      servos[4].write(0); // épaule
+      delay(50);
+      servos[5].write(gamma*180/3.1413);
+      delay(50);
+      servos[3].write(alpha*180/3.1413);
+      servos[4].write(abs(beta*180/3.1413));
+      delay(50);
+
+   }
+ }
+}
