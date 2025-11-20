@@ -1,0 +1,266 @@
+import processing.serial.*;
+Serial port;
+
+int nbGraduations = 12;
+float rayonMax = 225;
+int nbCouches = 100;
+float cx = 450;
+float cy = 275;
+float px = cx;
+float py = cy;
+boolean isDragging = false;
+
+void setup() {
+  size(900, 550);
+  frameRate(60);
+  ellipseMode(CENTER);
+  textFont(createFont("Arial", 12));
+  textAlign(CENTER, CENTER);
+  port = new Serial(this, Serial.list()[0], 9600); // Vérifie le bon port
+}
+
+void draw() {
+  background(255);
+
+  // Dégradé radial
+  noStroke();
+  for (int i = nbCouches; i >= 0; i--) {
+    float ratio = i / float(nbCouches);
+    int r = int(lerp(100, 0, ratio));
+    int g = int(lerp(180, 51, ratio));
+    int b = int(lerp(255, 102, ratio));
+    fill(r, g, b);
+    float rayon = rayonMax * ratio;
+    ellipse(cx, cy, rayon * 2, rayon * 2);
+  }
+
+  // Cercle gradué
+  stroke(0, 51, 102);
+  noFill();
+  ellipse(cx, cy, rayonMax * 2, rayonMax * 2);
+  for (int i = 0; i < nbGraduations; i++) {
+    float angle = -TWO_PI / nbGraduations * i;
+    float deg = degrees(-angle);
+    float x1 = cx + cos(angle) * rayonMax;
+    float y1 = cy + sin(angle) * rayonMax;
+    float x2 = cx + cos(angle) * (rayonMax + 10);
+    float y2 = cy + sin(angle) * (rayonMax + 10);
+    line(x1, y1, x2, y2);
+    float xt = cx + cos(angle) * (rayonMax + 20);
+    float yt = cy + sin(angle) * (rayonMax + 20);
+    fill(0, 51, 102);
+    text(int(deg) + "°", xt, yt);
+    noFill();
+  }
+
+  // Joystick interaction
+  if (isDragging) {
+    float dx = mouseX - cx;
+    float dy = mouseY - cy;
+    float dist = sqrt(dx*dx + dy*dy);
+    if (dist <= rayonMax) {
+      px = mouseX;
+      py = mouseY;
+    }
+  }
+
+  drawJoystick(px, py);
+
+  // Affichage des infos
+  float dx = px - cx;
+  float dy = py - cy;
+  float distance = sqrt(dx*dx + dy*dy);
+  fill(0);
+  textAlign(LEFT);
+  text("Position : (" + int(px) + ", " + int(py) + ")", 20, 20);
+  text("Distance au centre : " + nf(distance, 1, 2), 20, 40);
+  if (distance > 0.5) {
+    float angleRad = atan2(dy, dx);
+    float angleDeg = degrees(angleRad);
+    if (angleDeg < 0) angleDeg += 360;
+    angleDeg = 360 - angleDeg;
+    text("Angle : " + nf(angleDeg, 1, 2) + "°", 20, 60);
+    // Fait avancer l'hexapode quand on bouge le joystick
+    String s = "Avancer";
+    String msg = angleDeg + ";" + distance + ";" + s + "\n";
+    port.write(msg);
+  } else {
+    text("Angle : — (au centre)", 20, 60);
+  }
+
+  // Bouton "Coucou"
+  drawButton();
+  // Bouton "Position initiale"
+  drawButton2();
+  // Bouton "Oscille"
+  drawButton3();
+  // Bouton "Tremble"
+  drawButton4();
+  // Bouton "Patte1"
+  drawButton5();
+}
+
+void drawJoystick(float x, float y) {
+  fill(0, 0, 0, 50);
+  noStroke();
+  ellipse(x + 3, y + 3, 30, 30);
+  fill(80, 80, 200);
+  stroke(0);
+  strokeWeight(2);
+  ellipse(x, y, 30, 30);
+  stroke(255);
+  strokeWeight(2);
+  line(x - 10, y, x + 10, y);
+  line(x, y - 10, x, y + 10);
+}
+
+void drawButton() {
+  int bx = 780;
+  int by = 480;
+  int bw = 100;
+  int bh = 30;
+  fill(200);
+  stroke(0);
+  rect(bx, by, bw, bh, 5);
+  fill(0);
+  textAlign(CENTER, CENTER);
+  text("Coucou" , bx + bw / 2, by + bh / 2);
+}
+
+void drawButton2() {
+  int bx = 780;
+  int by = 380;
+  int bw = 100;
+  int bh = 30;
+  fill(200);
+  stroke(0);
+  rect(bx, by, bw, bh, 5);
+  fill(0);
+  textAlign(CENTER, CENTER);
+  text("Position initiale" , bx + bw / 2, by + bh / 2);
+}
+
+void drawButton3() {
+  int bx = 780;
+  int by = 280;
+  int bw = 100;
+  int bh = 30;
+  fill(200);
+  stroke(0);
+  rect(bx, by, bw, bh, 5);
+  fill(0);
+  textAlign(CENTER, CENTER);
+  text("Repousser Obj" , bx + bw / 2, by + bh / 2);
+}
+
+void drawButton4() {
+  int bx = 780;
+  int by = 180;
+  int bw = 100;
+  int bh = 30;
+  fill(200);
+  stroke(0);
+  rect(bx, by, bw, bh, 5);
+  fill(0);
+  textAlign(CENTER, CENTER);
+  text("Tremble" , bx + bw / 2, by + bh / 2);
+}
+
+void drawButton5() {
+  int bx = 780;
+  int by = 80;
+  int bw = 100;
+  int bh = 30;
+  fill(200);
+  stroke(0);
+  rect(bx, by, bw, bh, 5);
+  fill(0);
+  textAlign(CENTER, CENTER);
+  text("Patte1" , bx + bw / 2, by + bh / 2);
+}
+
+void mousePressed() {
+  float d = dist(mouseX, mouseY, px, py);
+  if (d < 15) {
+    isDragging = true;
+  }
+  if (mouseX > 780 && mouseX < 880 && mouseY > 480 && mouseY < 510) {
+    port.write("coucou\n");
+    delay(650);
+    port.write("Position initiale\n");
+  }
+  if (mouseX > 780 && mouseX < 880 && mouseY > 380 && mouseY < 410) {
+    port.write("Position initiale\n");
+  }
+  if (mouseX > 780 && mouseX < 880 && mouseY > 280 && mouseY < 310) {
+    port.write("Oscille\n");
+    delay(2500);
+    port.write("Oscille\n");
+    delay(2500);
+    port.write("Position initiale\n");
+  }
+  if (mouseX > 780 && mouseX < 880 && mouseY > 180 && mouseY < 210) {
+    port.write("Tremble\n");
+    delay(90);
+    port.write("Tremble\n");
+    delay(90);
+    port.write("Tremble\n");
+    delay(90);
+    port.write("Tremble\n");
+    delay(90);
+    port.write("Tremble\n");
+    delay(90);
+    port.write("Tremble\n");
+  }
+  if (mouseX > 780 && mouseX < 880 && mouseY > 80 && mouseY < 210) {
+    float x = 50;
+    float l1 = 55.0;
+    float l2 = 80.0;
+    float l3 = 110.0;
+    float gamma = atan(x/l3);
+    float l4 = l3/cos(gamma);
+    
+    // 30*30 = (-hauteur du chassis en mm)^2
+    float beta = - acos( (30*30 + l4*l4 - l1*l1 - l2*l2) / (2*l1*l2) );
+    float alpha = atan((((l1 + (l2*cos(beta)))*(-30)) - (l2*sin(beta)*l4)) / (((l1 + (l2*cos(beta)))*l4) + (l2*sin(beta)*(-30))));
+    print("  Gamma :  ");
+    print(gamma*180/3.1415);
+    print("  Beta : ");
+    print(beta*180/3.1415);
+    print("  Alpha :  ");
+    print(alpha*180/3.1415);
+    port.write("Position initiale\n");
+    delay(850);
+    port.write("Patte1\n");
+    delay(900
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    );
+    port.write("Position initiale\n");
+    delay(850);
+  }
+}
+
+// Fonction en état de marche, remet l'hexapode en position initiale quand le joystick est relaché
+void mouseReleased() {
+  isDragging = false;
+  px = cx;
+  py = cy;
+  if (mouseX < 700 && mouseY < 600) {
+    port.write("Position initiale\n");
+}
+}
