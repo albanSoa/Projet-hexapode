@@ -19,7 +19,7 @@ void setup() {
   delay(50);
   servos[1].write(12);
   delay(50);
-  servos[2].write(165);
+  servos[2].write(150);
   delay(50);
 
   servos[3].write(100);
