@@ -8,9 +8,9 @@ float centreY = 275;
 
 // Variables pour le curseur vertical (type de slider)
 float curseurY; // Position verticale du curseur
-float curseurX = 50; // Position horizontale du curseur
-float curseurHaut = 100; // Limite supérieure du curseur
-float curseurBas = 400; // Limite inférieure du curseur
+float curseurX = 265; // Position horizontale du curseur
+float curseurHaut = 200; // Limite supérieure du curseur
+float curseurBas = 310; // Limite inférieure du curseur
 boolean glissementCurseur = false; // Indique si l'utilisateur est en train de déplacer le curseur
 
 // Variables pour les directions du robot
@@ -33,11 +33,13 @@ void draw() {
   // Fonction appelée en boucle pour dessiner l'interface
   background(255); // Fond blanc
 
+  // Dessiner fond d'écran
+  dessinerBack();
   // Dessin des boutons interactifs
-  dessinerBouton("Coucou", 750, 480);
-  dessinerBouton("Position initiale", 750, 420);
-  dessinerBouton("Repousser Obj", 750, 360);
-  dessinerBouton("Tremble", 750, 300);
+  dessinerBouton("Coucou", 30, 175);
+  dessinerBouton("Position initiale", 30, 275);
+  dessinerBouton("Repousser Obj", 750, 275);
+  dessinerBouton("Tremble", 750, 175);
 
 
   // Dessin des flèches directionnelles
@@ -75,13 +77,54 @@ void dessinerBouton(String texte, int x, int y) {
   text(texte, x + largeur / 2, y + hauteur / 2);
 }
 
-void dessinerFlechesDirectionnelles() {
-  // Dessine les flèches pour les directions
-  dessinerFleche(width/2, 225, "Avancer", 0);
-  dessinerFleche(width/2, 300, "Reculer", PI);
+void dessinerBack(){
+  fill(108, 97, 186);
+  circle(280, 257, 200);
+  circle(610, 257, 200);
+  rect(280, 165, 330, 185, 28);
+  
+  
+  fill(222, 222, 222);
+  circle(610, 257, 150);
+  
+  // boutons ronds
+  fill(0);
+  circle(610, 220, 35);
+  circle(610, 300, 35);
+  circle(570, 260, 35);
+  circle(650, 260, 35);
+  
+  
+  
+  
+  // Texte
+  fill(0);
+  textAlign(CENTER);
+  textSize(30);
+  text("MANETTE DE L'HEXAPODE",450,50);
 }
 
-void dessinerFleche(float x, float y, String etiquette, float rotation) {
+void dessinerFlechesDirectionnelles() {
+  // Dessine les flèches pour les directions
+  dessinerFlecheHaut(width/2, 220, "Avancer", 0);
+  dessinerFlecheBas(width/2, 315, "Reculer", PI);
+  dessinerFleche(220, 260, -HALF_PI);
+  dessinerFleche(310, 260, HALF_PI);
+}
+
+void dessinerFleche(float x, float y, float rotation) {
+  // Dessine une flèche orientée selon rotation
+  pushMatrix();
+  translate(x, y);
+  rotate(rotation);
+  fill(0);
+  stroke(0);
+  triangle(-20, 20, 20, 20, 0, -20); // Forme de la flèche
+  popMatrix();
+}
+
+
+void dessinerFlecheHaut(float x, float y, String etiquette, float rotation) {
   // Dessine une flèche orientée selon rotation
   pushMatrix();
   translate(x, y);
@@ -91,7 +134,24 @@ void dessinerFleche(float x, float y, String etiquette, float rotation) {
   triangle(-10, 10, 10, 10, 0, -20); // Forme de la flèche
   popMatrix();
   fill(0);
-  text(etiquette, x, y + 30); // Texte sous la flèche
+  text(etiquette, x, y + 25); // Texte sous la flèche
+  fill(255);
+  text("z", x, y); // Texte sous la flèche
+}
+
+void dessinerFlecheBas(float x, float y, String etiquette, float rotation) {
+  // Dessine une flèche orientée selon rotation
+  pushMatrix();
+  translate(x, y);
+  rotate(rotation);
+  fill(0);
+  stroke(0);
+  triangle(-10, 10, 10, 10, 0, -20); // Forme de la flèche
+  popMatrix();
+  fill(0);
+  text(etiquette, x, y - 25); // Texte sur la flèche
+  fill(255);
+  text("s", x, y); // Texte sous la flèche
 }
 
 void dessinerCurseurVertical() {
@@ -121,31 +181,31 @@ void mouseDragged() {
 
 void mousePressed() {
     // Flèche "Avancer"
-  if (mouseX > width/2 - 20 && mouseX < width/2 + 20 && mouseY > 225 - 20 && mouseY < 225 + 20) {
+  if (mouseX > width/2 - 20 && mouseX < width/2 + 20 && mouseY > 150 - 20 && mouseY < 150 + 20) {
     avancer = true;
     port.write("Avancer\n");
   }
 
     // Flèche "Reculer"
-  if (mouseX > width/2 - 20 && mouseX < width/2 + 20 && mouseY > 300 - 20 && mouseY < 300 + 20) {
+  if (mouseX > width/2 - 20 && mouseX < width/2 + 20 && mouseY > 245 - 20 && mouseY < 245 + 20) {
     reculer = true;
     port.write("Reculer\n");
   }
 
   // Si clic sur le bouton "Coucou"
-  if (mouseX > 720 && mouseX < 840 && mouseY > 480 && mouseY < 520) {
+  if (mouseX > 30 && mouseX < 160 && mouseY > 175 && mouseY < 210) {
     port.write("coucou\n");
     delay(650);
     port.write("Position initiale\n");
   }
 
   // Si clic sur "Position initiale"
-  if (mouseX > 720 && mouseX < 840 && mouseY > 420 && mouseY < 460) {
+  if (mouseX > 30 && mouseX < 160 && mouseY > 275 && mouseY < 310) {
     port.write("Position initiale\n");
   }
 
   // Si clic sur "Repousser Obj"
-  if (mouseX > 720 && mouseX < 840 && mouseY > 360 && mouseY < 400) {
+  if (mouseX > 720 && mouseX < 840 && mouseY > 275 && mouseY < 310) {
     port.write("Oscille\n");
     delay(2500);
     port.write("Oscille\n");
@@ -154,7 +214,7 @@ void mousePressed() {
   }
 
   // Si clic sur "Tremble"
-  if (mouseX > 720 && mouseX < 840 && mouseY > 300 && mouseY < 340) {
+  if (mouseX > 720 && mouseX < 840 && mouseY > 175 && mouseY < 210) {
     for (int i = 0; i < 6; i++) {
       port.write("Tremble\n");
       delay(90);
@@ -167,18 +227,6 @@ void mousePressed() {
   }
 }
 
-void mouseReleased() {
-  // Quand on relâche la souris, on arrête d'avancer :
-  avancer = false;
-  reculer=false;  
-  
-  // Si clic en dehors des boutons, on remet le robot en position initiale
-  if (mouseX < 700 && mouseY < 600) {
-    port.write("Position initiale\n");
-  }
-
-  glissementCurseur = false;
-}
 
 void keyPressed() {
   // Quand une touche est pressée, on active la direction correspondante
