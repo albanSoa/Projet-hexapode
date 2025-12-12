@@ -198,7 +198,7 @@ void loop() {
 
       int deg = 180;
 
-      servos[2].write(165);
+      servos[2].write(150);
       delay(50);
       servos[5].write(0);
       delay(50);
@@ -220,7 +220,7 @@ void loop() {
       servos[1].write(104 - (alpha*180/3.1415)); 
       delay(500);   
 
-      servos[4].write(165 - 90 + (alpha*180/3.1415)); 
+      servos[4].write(150 - 90 + (alpha*180/3.1415)); 
       delay(500);
 
       servos[7].write(168 - 90 + (alpha*180/3.1415)); 
